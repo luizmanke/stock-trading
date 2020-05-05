@@ -1,0 +1,21 @@
+stages:
+  - Deploy to Heroku DEV
+  - Update Database DEV
+
+Deploy to Heroku DEV:
+  stage: Deploy to Heroku DEV
+  image: ruby:latest
+  only:
+    - dev
+  script:
+    - apt-get update -qy
+    - apt-get install -y ruby-dev
+    - gem install dpl
+    - dpl --provider=heroku --app=$HEROKU_APP_DEV --api-key=$HEROKU_API_KEY
+
+Update Database DEV:
+  stage: Update Database DEV
+  only:
+    - schedules
+  script:
+    - curl www.creamstockmarket-dev.herokuapp.com/database/update
