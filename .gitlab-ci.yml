@@ -18,4 +18,4 @@ Update Database DEV:
   only:
     - schedules
   script:
-    - curl www.creamstockmarket-dev.herokuapp.com/database/update
+    - curl https://creamstockmarket-dev.herokuapp.com/database/update
