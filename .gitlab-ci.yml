@@ -29,15 +29,13 @@ Deploy to Heroku PRD:
 Update Database DEV:
   stage: Update Database DEV
   only:
-    - dev
-    - schedules
+    - dev && schedules
   script:
     - curl -X POST https://creamstockmarket-dev.herokuapp.com/database/update
 
 Update Database PRD:
   stage: Update Database PRD
   only:
-    - master
-    - schedules
+    - master && schedules
   script:
     - curl -X POST https://creamstockmarket.herokuapp.com/database/update
