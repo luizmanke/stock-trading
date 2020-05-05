@@ -1,6 +1,8 @@
 stages:
   - Deploy to Heroku DEV
+  - Deploy to Heroku PRD
   - Update Database DEV
+  - Update Database PRD
 
 Deploy to Heroku DEV:
   stage: Deploy to Heroku DEV
@@ -13,9 +15,29 @@ Deploy to Heroku DEV:
     - gem install dpl
     - dpl --provider=heroku --app=$HEROKU_APP_DEV --api-key=$HEROKU_API_KEY
 
+Deploy to Heroku PRD:
+  stage: Deploy to Heroku PRD
+  image: ruby:latest
+  only:
+    - master
+  script:
+    - apt-get update -qy
+    - apt-get install -y ruby-dev
+    - gem install dpl
+    - dpl --provider=heroku --app=$HEROKU_APP_PRD --api-key=$HEROKU_API_KEY
+
 Update Database DEV:
   stage: Update Database DEV
   only:
+    - dev
     - schedules
   script:
     - curl -X POST https://creamstockmarket-dev.herokuapp.com/database/update
+
+Update Database PRD:
+  stage: Update Database PRD
+  only:
+    - master
+    - schedules
+  script:
+    - curl -X POST https://creamstockmarket.herokuapp.com/database/update
