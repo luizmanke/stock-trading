@@ -8,7 +8,7 @@ const databaseRoute = require("./backend/routes/database");
 // Configurations
 const port = process.env.PORT || 5000;
 
-// Start server
+// Create server
 const server = express();
 
 // Middlewares
@@ -20,7 +20,8 @@ server.get("/", (req, res) => {
   res.json({ message: "Hello world!" });
 });
 
-// Wait for requests
-server.listen(port, () => {
+// Start server
+var serverObject = server.listen(port, () => {
   console.log(`Server running on port ${port}...`);
 });
+serverObject.timeout = 1200000;

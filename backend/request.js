@@ -36,7 +36,6 @@ async function getQuotations(initialDate = "01/01/2020") {
   // Get quotations
   let quotations = [];
   for (ticker of Object.keys(companies)) {
-    console.log(ticker);
     data["curr_id"] = companies[ticker]["id"];
     options.data = querystring.encode(data);
     const response = await axios(options);
@@ -46,7 +45,6 @@ async function getQuotations(initialDate = "01/01/2020") {
     const outputJsons = _processQuotations(inputJsons, ticker);
     quotations = quotations.concat(outputJsons);
   }
-  console.log(quotations.length);
   return quotations;
 }
 
@@ -116,7 +114,7 @@ function _processFundamentals(inputJsons) {
     }
 
     // Add occurredAt
-    let utc = new Date().toISOString();
+    let utc = moment(new Date()).subtract(3, "hours").toISOString();
     utc = `${utc.slice(0, 10)}T00:00:00.000Z`;
     json["occurredAt"] = utc;
   }
@@ -214,7 +212,7 @@ function _processQuotations(inputJsons, ticker) {
         break;
     }
     for (const key in json) {
-      if (key != "occurredAt") {
+      if (key != "occurredAt" && json[key]) {
         json[key] = json[key].replace("%", "");
         json[key] = json[key].replace(/\b[-]\b/g, "");
         json[key] = json[key].replace(/[,]/g, ".");
@@ -230,6 +228,11 @@ function _processQuotations(inputJsons, ticker) {
 
     // Add ticker
     json["ticker"] = ticker;
+
+    // Remove NaN
+    for (key of Object.keys(json)) {
+      if (typeof json[key] == "number" && isNaN(json[key])) json[key] = null;
+    }
 
     outputJsons.push(json);
   }

@@ -11,10 +11,6 @@ const Quotation = require("../models/Quotation");
 // Routes
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.json({ message: "Hello there." });
-});
-
 router.post("/update", async (req, res) => {
   try {
     initialTime = new Date();
@@ -23,6 +19,7 @@ router.post("/update", async (req, res) => {
     // Funtamentals
     console.log("Fundamentals...");
     const fundamentalsList = await request.getFundamentals();
+    console.log(` > ${fundamentalsList.length} files found.`);
     await connection.updateDatabase(fundamentalsList, Fundamental);
 
     // Quotations
@@ -33,15 +30,17 @@ router.post("/update", async (req, res) => {
       .subtract(deltaDays, "days")
       .format("DD/MM/YYYY");
     const quotationsList = await request.getQuotations(initialDate);
+    console.log(` > ${quotationsList.length} files found.`);
     await connection.updateDatabase(quotationsList, Quotation);
 
     connection.disconnectFromMongoDB();
     elapsedTime = new Date() - initialTime;
     console.log(`Elapsed time: ${elapsedTime} ms`);
 
-    res.json({ message: "Done." });
+    res.json({ status: 200 });
   } catch (error) {
-    res.json({ message: String(error) });
+    console.log(error);
+    res.json({ status: 401 });
   }
 });
 
