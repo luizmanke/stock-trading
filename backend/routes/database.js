@@ -24,9 +24,11 @@ router.post("/update", async (req, res) => {
 
     // Quotations
     console.log("Quotations...");
+    const utc = -3;
     const deltaDays = 2;
     let initialDate = new Date();
     initialDate = moment(initialDate)
+      .add(utc, "hours")
       .subtract(deltaDays, "days")
       .format("DD/MM/YYYY");
     const quotationsList = await request.getQuotations(initialDate);

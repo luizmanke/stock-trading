@@ -28,14 +28,22 @@ Deploy to Heroku PRD:
 
 Update Database DEV:
   stage: Update Database DEV
+  image: node:latest
+  variables:
+    HEROKU_APP: $HEROKU_APP_DEV
   rules:
     - if: '$CI_COMMIT_REF_NAME == "dev" && $CI_PIPELINE_SOURCE == "schedule"'
   script:
-    - curl -X POST https://creamstockmarket-dev.herokuapp.com/database/update
+    - npm install
+    - npm test backend/triggers/update-database.js
 
 Update Database PRD:
   stage: Update Database PRD
+  image: node:latest
+  variables:
+    HEROKU_APP: $HEROKU_APP_PRD
   rules:
     - if: '$CI_COMMIT_REF_NAME == "master" && $CI_PIPELINE_SOURCE == "schedule"'
   script:
-    - curl -X POST https://creamstockmarket.herokuapp.com/database/update
+    - npm install
+    - npm test backend/triggers/update-database.js
