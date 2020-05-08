@@ -12,13 +12,13 @@ const Quotation = require("../models/Quotation");
 // Routes
 const router = express.Router();
 
-router.post("/update", (req, res) => {
-  updateFundamentals();
-  updateQuotations();
+router.post("/update-database", (req, res) => {
+  // _updateFundamentals();
+  // _updateQuotations();
   res.json({ status: 200 });
 });
 
-router.get("/status", async (req, res) => {
+router.get("/database-status", async (req, res) => {
   const fundamentalsDoc = await Info.findOne({ key: "fundamentals" });
   const quotationsDoc = await Info.findOne({ key: "quotations" });
   const todayDate = _getTodayDate().toISOString();
@@ -32,16 +32,16 @@ router.get("/status", async (req, res) => {
 });
 
 // Functions
-async function updateFundamentals() {
+async function _updateFundamentals() {
   console.log("Fundamentals...");
   const fundamentalsList = await request.getFundamentals();
   console.log(` > ${fundamentalsList.length} files found.`);
   await connection.updateDatabase(fundamentalsList, Fundamental);
   const newValues = { occurredAt: _getTodayDate(), createdAt: moment.utc() };
-  await Info.updateOne({ key: "quotations" }, newValues);
+  await Info.updateOne({ key: "fundamentals" }, newValues);
 }
 
-async function updateQuotations() {
+async function _updateQuotations() {
   console.log("Quotations...");
   const deltaDays = 2;
   const initialDate = _getTodayDate()

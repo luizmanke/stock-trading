@@ -7,8 +7,8 @@ const HtmlTableToJson = require("html-table-to-json");
 async function getFundamentals() {
   const url = "http://fundamentus.com.br/resultado.php";
   const response = await axios.get(url);
-  if (response.status != 200) throw "Error during request.";
-  const jsonTables = new HtmlTableToJson(response.data);
+  if (response["status"] != 200) throw "Error during request.";
+  const jsonTables = new HtmlTableToJson(response["data"]);
   const inputJsons = jsonTables["results"][0];
   const fundamentals = _processFundamentals(inputJsons);
   return fundamentals;
@@ -16,19 +16,16 @@ async function getFundamentals() {
 
 async function getQuotations(initialDate = "01/01/2020") {
   // Variables
-  const options = {
-    method: "post",
-    url: "https://br.investing.com/instruments/HistoricalDataAjax",
-    headers: {
-      "User-Agent": "Mozilla/5.0",
-      "X-Requested-With": "XMLHttpRequest",
-    },
+  const options = {};
+  options["method"] = "post";
+  options["url"] = "https://br.investing.com/instruments/HistoricalDataAjax";
+  options["headers"] = {
+    "User-Agent": "Mozilla/5.0",
+    "X-Requested-With": "XMLHttpRequest",
   };
-  let data = {
-    st_date: initialDate,
-    end_date: "01/01/2030",
-    interval_sec: "Daily",
-  };
+  let data = { st_date: initialDate };
+  data["end_date"] = "01/01/2030";
+  data["interval_sec"] = "Daily";
 
   // Get companies
   const companies = await _getCompanies();
@@ -37,14 +34,15 @@ async function getQuotations(initialDate = "01/01/2020") {
   let quotations = [];
   for (ticker of Object.keys(companies)) {
     data["curr_id"] = companies[ticker]["id"];
-    options.data = querystring.encode(data);
+    options["data"] = querystring.encode(data);
     const response = await axios(options);
-    if (response.status != 200) throw "Error during request.";
-    const jsonTables = new HtmlTableToJson(response.data);
+    if (response["status"] != 200) throw "Error during request.";
+    const jsonTables = new HtmlTableToJson(response["data"]);
     const inputJsons = jsonTables["results"][0];
     const outputJsons = _processQuotations(inputJsons, ticker);
     quotations = quotations.concat(outputJsons);
   }
+
   return quotations;
 }
 
@@ -119,19 +117,20 @@ function _processFundamentals(inputJsons) {
     newOccurredAt = `${newOccurredAt.slice(0, 10)}T00:00:00.000Z`;
     json["occurredAt"] = newOccurredAt;
   }
+
   return outputJsons;
 }
 
 async function _getCompanies() {
   // Variables
   const maxPageNumbers = 100;
-  const options = {
-    method: "post",
-    url: "https://br.investing.com/stock-screener/Service/SearchStocks",
-    headers: {
-      "User-Agent": "Mozilla/5.0",
-      "X-Requested-With": "XMLHttpRequest",
-    },
+  const options = {};
+  options["method"] = "post";
+  options["url"] =
+    "https://br.investing.com/stock-screener/Service/SearchStocks";
+  options["headers"] = {
+    "User-Agent": "Mozilla/5.0",
+    "X-Requested-With": "XMLHttpRequest",
   };
   let data = {
     "country[]": "32",
@@ -144,7 +143,7 @@ async function _getCompanies() {
   let companies = {};
   for (pageNumber = 1; pageNumber < maxPageNumbers + 1; pageNumber++) {
     data["pn"] = pageNumber;
-    options.data = querystring.encode(data);
+    options["data"] = querystring.encode(data);
     const response = await axios(options);
     if (response.status != 200) throw "Error during request.";
 
@@ -160,7 +159,7 @@ async function _getCompanies() {
       };
     }
 
-    if (Object.keys(companies).length == response.data["totalCount"]) break;
+    if (Object.keys(companies).length == response["data"]["totalCount"]) break;
   }
 
   // Add market ticker
@@ -237,6 +236,7 @@ function _processQuotations(inputJsons, ticker) {
 
     outputJsons.push(json);
   }
+
   return outputJsons;
 }
 

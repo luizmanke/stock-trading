@@ -15,7 +15,7 @@ connection.connectToMongoDB();
 
 // Middlewares
 server.use(bodyParser.json());
-server.use("/database", databaseRoute);
+server.use("/", databaseRoute);
 
 // Hello world
 server.get("/", (req, res) => {
