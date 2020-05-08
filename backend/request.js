@@ -115,7 +115,7 @@ function _processFundamentals(inputJsons) {
 
     // Add occurredAt
     const utc = -3;
-    let newOccurredAt = moment(new Date()).add(utc, "hours").toISOString();
+    let newOccurredAt = moment.utc().add(utc, "hours").toISOString();
     newOccurredAt = `${newOccurredAt.slice(0, 10)}T00:00:00.000Z`;
     json["occurredAt"] = newOccurredAt;
   }

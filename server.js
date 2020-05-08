@@ -4,12 +4,14 @@ const express = require("express");
 
 // Own libraries
 const databaseRoute = require("./backend/routes/database");
+const connection = require("./backend/connection");
 
 // Configurations
 const port = process.env.PORT || 5000;
 
 // Create server
 const server = express();
+connection.connectToMongoDB();
 
 // Middlewares
 server.use(bodyParser.json());
@@ -21,7 +23,6 @@ server.get("/", (req, res) => {
 });
 
 // Start server
-var serverObject = server.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server running on port ${port}...`);
 });
-serverObject.timeout = 1200000;
