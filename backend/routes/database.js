@@ -5,6 +5,7 @@ const moment = require("moment");
 // Own libraries
 const connection = require("../connection");
 const request = require("../request");
+const utils = require("../utils");
 const Fundamental = require("../models/Fundamental");
 const Info = require("../models/Info");
 const Quotation = require("../models/Quotation");
@@ -22,7 +23,7 @@ router.get("/database-status", async (req, res) => {
   let status = "Out of date";
   const fundamentalsDoc = await Info.findOne({ key: "fundamentals" });
   const quotationsDoc = await Info.findOne({ key: "quotations" });
-  const todayDate = _getTodayDate().toISOString();
+  const todayDate = utils.getTodayDate().toISOString();
   if (
     fundamentalsDoc.occurredAt.toISOString() == todayDate &&
     quotationsDoc.occurredAt.toISOString() == todayDate
@@ -37,32 +38,28 @@ async function _updateFundamentals() {
   const fundamentalsList = await request.getFundamentals();
   console.log(` > ${fundamentalsList.length} files found.`);
   await connection.updateDatabase(fundamentalsList, Fundamental);
-  const newValues = { occurredAt: _getTodayDate(), createdAt: moment.utc() };
+  const newValues = {
+    occurredAt: utils.getTodayDate(),
+    createdAt: moment.utc(),
+  };
   await Info.updateOne({ key: "fundamentals" }, newValues);
 }
 
 async function _updateQuotations() {
   console.log("Quotations...");
   const deltaDays = 2;
-  const initialDate = _getTodayDate()
+  const initialDate = utils
+    .getTodayDate()
     .subtract(deltaDays, "days")
     .format("DD/MM/YYYY");
   const quotationsList = await request.getQuotations(initialDate);
   console.log(` > ${quotationsList.length} files found.`);
   await connection.updateDatabase(quotationsList, Quotation);
-  const newValues = { occurredAt: _getTodayDate(), createdAt: moment.utc() };
+  const newValues = {
+    occurredAt: utils.getTodayDate(),
+    createdAt: moment.utc(),
+  };
   await Info.updateOne({ key: "quotations" }, newValues);
-}
-
-function _getTodayDate() {
-  const utc = -3;
-  const hoursDelay = 18;
-  const todayDate = moment
-    .utc()
-    .add(utc, "hours")
-    .subtract(hoursDelay, "hours")
-    .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-  return todayDate;
 }
 
 // Export
