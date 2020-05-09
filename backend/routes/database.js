@@ -19,16 +19,16 @@ router.post("/update-database", (req, res) => {
 });
 
 router.get("/database-status", async (req, res) => {
+  let status = "Out of date";
   const fundamentalsDoc = await Info.findOne({ key: "fundamentals" });
   const quotationsDoc = await Info.findOne({ key: "quotations" });
   const todayDate = _getTodayDate().toISOString();
   if (
     fundamentalsDoc.occurredAt.toISOString() == todayDate &&
     quotationsDoc.occurredAt.toISOString() == todayDate
-  ) {
-    res.json({ status: "Updated" });
-  }
-  res.json({ status: "Out of date" });
+  )
+    status = "Updated";
+  res.json({ status: status });
 });
 
 // Functions
