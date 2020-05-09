@@ -7,8 +7,8 @@ stages:
 Deploy to Heroku DEV:
   stage: Deploy to Heroku DEV
   image: ruby:latest
-  only:
-    - dev
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "dev" && $CI_PIPELINE_SOURCE != "schedule"'
   script:
     - apt-get update -qy
     - apt-get install -y ruby-dev
@@ -18,8 +18,8 @@ Deploy to Heroku DEV:
 Deploy to Heroku PRD:
   stage: Deploy to Heroku PRD
   image: ruby:latest
-  only:
-    - master
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master" && $CI_PIPELINE_SOURCE != "schedule"'
   script:
     - apt-get update -qy
     - apt-get install -y ruby-dev
@@ -28,14 +28,22 @@ Deploy to Heroku PRD:
 
 Update Database DEV:
   stage: Update Database DEV
-  only:
-    - dev && schedules
+  image: node:latest
+  variables:
+    HEROKU_APP: $HEROKU_APP_DEV
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "dev" && $CI_PIPELINE_SOURCE == "schedule"'
   script:
-    - curl -X POST https://creamstockmarket-dev.herokuapp.com/database/update
+    - npm install
+    - npm test backend/triggers/update-database.js
 
 Update Database PRD:
   stage: Update Database PRD
-  only:
-    - master && schedules
+  image: node:latest
+  variables:
+    HEROKU_APP: $HEROKU_APP_PRD
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master" && $CI_PIPELINE_SOURCE == "schedule"'
   script:
-    - curl -X POST https://creamstockmarket.herokuapp.com/database/update
+    - npm install
+    - npm test backend/triggers/update-database.js
