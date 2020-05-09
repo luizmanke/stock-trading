@@ -9,7 +9,7 @@ describe("Update Database", async function () {
 
     // Request
     const app = process.env.HEROKU_APP;
-    const response = await axios.post(
+    let response = await axios.post(
       `https://${app}.herokuapp.com/update-database`
     );
     assert.equal(response.status, 200);

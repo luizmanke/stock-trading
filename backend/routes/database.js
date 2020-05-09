@@ -13,8 +13,8 @@ const Quotation = require("../models/Quotation");
 const router = express.Router();
 
 router.post("/update-database", (req, res) => {
-  // _updateFundamentals();
-  // _updateQuotations();
+  _updateFundamentals();
+  _updateQuotations();
   res.json({ status: 200 });
 });
 
