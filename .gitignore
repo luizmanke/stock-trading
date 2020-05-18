@@ -1,7 +1,7 @@
 # Own
 .DS_Store
 .vscode
-venv
+env
 analytics/fundamental/backtest/*.png
 analytics/fundamental/backtest/*.csv
 analytics/technical/backtest/*.png
