@@ -7,7 +7,7 @@ from flask import Flask
 from flask_restful import Api
 
 # Own libraries
-from .resources.metadata import update_database
+from backend.resources.metadata import update_database
 
 # Set triggers
 scheduler = BackgroundScheduler()
