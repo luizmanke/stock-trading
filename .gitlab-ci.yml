@@ -8,9 +8,7 @@ Deploy to Heroku DEV:
   stage: Deploy to Heroku DEV
   image: ruby:latest
   rules:
-    - if: "$CI_COMMIT_REF_NAME == 'dev' &&
-          $CI_PIPELINE_SOURCE != 'schedule' &&
-          $CI_MERGE_REQUEST_IID == ''"
+    - if: "$CI_COMMIT_REF_NAME == 'dev' && $CI_PIPELINE_SOURCE != 'schedule'"
   script:
     - apt-get update -qy
     - apt-get install -y ruby-dev
