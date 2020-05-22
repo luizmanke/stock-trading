@@ -8,7 +8,7 @@ Deploy to Heroku DEV:
   stage: Deploy to Heroku DEV
   image: ruby:latest
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "dev" && $CI_PIPELINE_SOURCE != "schedule"'
+    - if: "$CI_COMMIT_REF_NAME == 'dev' && $CI_PIPELINE_SOURCE != 'schedule'"
   script:
     - apt-get update -qy
     - apt-get install -y ruby-dev
@@ -19,7 +19,7 @@ Deploy to Heroku PRD:
   stage: Deploy to Heroku PRD
   image: ruby:latest
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "master" && $CI_PIPELINE_SOURCE != "schedule"'
+    - if: "$CI_COMMIT_REF_NAME == 'master' && $CI_PIPELINE_SOURCE != 'schedule'"
   script:
     - apt-get update -qy
     - apt-get install -y ruby-dev
