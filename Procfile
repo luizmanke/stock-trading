@@ -1,2 +1,2 @@
-web: gunicorn app
-clock: gunicorn triggers
+web: gunicorn app:app
+clock: gunicorn triggers:triggers
