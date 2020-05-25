@@ -11,5 +11,5 @@ from backend.resources import daily_update
 # Set triggers
 scheduler = BackgroundScheduler()
 scheduler.add_job(
-    daily_update.run, trigger="cron", day_of_week="mon-fri", hour=23, timezone="UTC")
+    daily_update.run, trigger="cron", day_of_week="mon-fri", hour=23, minute=20, timezone="UTC")
 scheduler.start()
