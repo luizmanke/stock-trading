@@ -10,7 +10,7 @@ import traceback
 from ..common import database
 from ..common import request_fundamentals
 from ..common import request_quotations
-from ..analytics.strategy import Strategy
+# from ..analytics.strategy import Strategy
 
 
 def run():
@@ -48,26 +48,26 @@ def _update_quotations():
 
 
 # TODO: Limit fundamentals
-def _update_indicators():
-    print("Indicators...")
+# def _update_indicators():
+#     print("Indicators...")
 
-    pipeline = [{"$sort": {"occurredAt": 1}},
-                {"$group": {
-                    "_id": "$ticker",
-                    "ticker": {"$last": "$ticker"},
-                    "cagr": {"$last": "$cagr"},
-                    "returnOnInvestedCapital": {"$last": "$returnOnInvestedCapital"},
-                    "priceToEarnings": {"$last": "$priceToEarnings"}}}]
-    fundamentals = database.aggregate(pipeline, "fundamentals")
+#     pipeline = [{"$sort": {"occurredAt": 1}},
+#                 {"$group": {
+#                     "_id": "$ticker",
+#                     "ticker": {"$last": "$ticker"},
+#                     "cagr": {"$last": "$cagr"},
+#                     "returnOnInvestedCapital": {"$last": "$returnOnInvestedCapital"},
+#                     "priceToEarnings": {"$last": "$priceToEarnings"}}}]
+#     fundamentals = database.aggregate(pipeline, "fundamentals")
 
-    minimum_date = occurred_at - dt.timedelta(days=200)
-    filter_ = {"occurredAt": {"$gte": minimum_date}}
-    fields = {"ticker": 1, "close": 1, "volume": 1}
-    quotations = database.find(filter_, fields, "quotations")
+#     minimum_date = occurred_at - dt.timedelta(days=200)
+#     filter_ = {"occurredAt": {"$gte": minimum_date}}
+#     fields = {"ticker": 1, "close": 1, "volume": 1}
+#     quotations = database.find(filter_, fields, "quotations")
 
-    indicators = strategy.get_indicators(fundamentals, quotations)
-    print(f" > {len(indicators)} new items")
-    database.insert(indicators, "indicators")
+#     indicators = strategy.get_indicators(fundamentals, quotations)
+#     print(f" > {len(indicators)} new items")
+#     database.insert(indicators, "indicators")
 
 
 def _get_today_date():
