@@ -2,16 +2,13 @@
 # -*- coding: utf-8 -*-
 
 # System libraries
-from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.background import BlockingScheduler
 
 # Own libraries
-from backend.resources.metadata import update_database
+from backend.resources import daily_update
 
-
-if __name__ == "__main__":
-
-    # Set triggers
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(
-        update_database, trigger="cron", day_of_week="mon-fri", hour=21, timezone="UTC")
-    scheduler.start()
+# Set triggers
+scheduler = BlockingScheduler()
+scheduler.add_job(
+    daily_update.run, trigger="cron", day_of_week="mon-fri", hour=21, timezone="UTC")
+scheduler.start()

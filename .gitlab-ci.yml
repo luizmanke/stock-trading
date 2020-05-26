@@ -1,8 +1,6 @@
 stages:
   - Deploy to Heroku DEV
   - Deploy to Heroku PRD
-  - Update Database DEV
-  - Update Database PRD
 
 Deploy to Heroku DEV:
   stage: Deploy to Heroku DEV

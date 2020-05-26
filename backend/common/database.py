@@ -8,25 +8,40 @@ import ssl
 from pymongo import MongoClient
 
 
-class Database():
+def insert(items, collection):
+    connection = _get_connection()
+    created_at = dt.datetime.utcnow()
+    for item in items:
+        item["createdAt"] = created_at
+    insert_response = connection[collection].insert_many(items)
+    return len(insert_response.inserted_ids)
 
-    def __init__(self):
-        super(Database, self).__init__()
-        self._connect()
 
-    def insert(self, items, collection):
-        created_at = dt.datetime.utcnow()
-        delete_count = 0
-        for item in items:
-            item["createdAt"] = created_at
-            filter_ = {"occurredAt": item["occurredAt"], "ticker": item["ticker"]}
-            delete_response = self._connection[collection].delete_many(filter_)
-            delete_count += delete_response.deleted_count
-        insert_response = self._connection[collection].insert_many(items)
-        print(f" > {delete_count} items deleted")
-        print(f" > {len(insert_response.inserted_ids)} items inserted")
+def delete(items, collection):
+    connection = _get_connection()
+    delete_count = 0
+    for item in items:
+        filter_ = {"occurredAt": item["occurredAt"], "ticker": item["ticker"]}
+        delete_response = connection[collection].delete_many(filter_)
+        delete_count += delete_response.deleted_count
+    return delete_count
 
-    def _connect(self):
-        url = os.environ.get("MONGODB_URL")
-        client = MongoClient(url, ssl_cert_reqs=ssl.CERT_NONE)
-        self._connection = client["cream"]
+
+def find(filter_, fields, collection):
+    connection = _get_connection()
+    docs = connection[collection].find(filter_, fields)
+    docs = [doc for doc in docs]
+    return docs
+
+
+def aggregate(pipeline, collection):
+    connection = _get_connection()
+    docs = connection[collection].aggregate(pipeline)
+    docs = [doc for doc in docs]
+    return docs
+
+
+def _get_connection():
+    url = os.environ.get("MONGODB_URL")
+    client = MongoClient(url, ssl_cert_reqs=ssl.CERT_NONE)
+    return client["cream"]
