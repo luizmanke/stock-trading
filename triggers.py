@@ -10,5 +10,6 @@ from backend.resources import daily_update
 # Set triggers
 scheduler = BlockingScheduler()
 scheduler.add_job(
-    daily_update.run, trigger="cron", day_of_week="mon-fri", hour=21, timezone="UTC")
+    daily_update.run, trigger="interval", minutes=20)
+    # daily_update.run, trigger="cron", day_of_week="mon-fri", hour=21, timezone="UTC")
 scheduler.start()
