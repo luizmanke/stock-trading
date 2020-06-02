@@ -27,9 +27,9 @@ def delete(items, collection):
     return delete_count
 
 
-def find(filter_, fields, collection):
+def find(collection, **kwargs):
     connection = _get_connection()
-    docs = connection[collection].find(filter_, fields)
+    docs = connection[collection].find(**kwargs)
     docs = [doc for doc in docs]
     return docs
 

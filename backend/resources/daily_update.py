@@ -40,7 +40,7 @@ def _update_fundamentals():
 def _update_quotations():
     print("Quotations...")
 
-    initial_date = get_today_date() - dt.timedelta(days=10)
+    initial_date = get_today_date() - dt.timedelta(days=2)
     initial_date = initial_date.strftime(("%d/%m/%Y"))
     quotations = request_quotations.run(initial_date)
     print(f" > {len(quotations)} items found")
@@ -82,6 +82,6 @@ def _get_last_fundamentals():
 
 def _get_last_quotations():
     minimum_date = get_today_date() - dt.timedelta(days=120)
-    filter_ = {"occurredAt": {"$gte": minimum_date}}
+    filter = {"occurredAt": {"$gte": minimum_date}}
     fields = {"ticker": 1, "close": 1, "volume": 1}
-    return database.find(filter_, fields, "quotations")
+    return database.find(collection="quotations", filter=filter, projection=fields)
