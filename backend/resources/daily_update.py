@@ -7,7 +7,7 @@ import sys
 import traceback
 
 # Own libraries
-from .utils import get_today_date
+from .utils import get_today_date, send_email
 from ..common import database
 from ..common import request_fundamentals
 from ..common import request_quotations
@@ -21,8 +21,11 @@ def run():
         _update_fundamentals()
         _update_quotations()
         _update_indicators()
+        send_email("Daily update: Succeeded", "")
     except Exception:
-        traceback.print_exc(file=sys.stdout)
+        error = traceback.format_exc()
+        print(error)
+        send_email("Daily update: Failed!", f"{error}")
 
 
 def _update_fundamentals():
