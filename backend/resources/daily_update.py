@@ -3,6 +3,8 @@
 
 # System libraries
 import datetime as dt
+import sys
+import traceback
 
 # Own libraries
 from .utils import get_today_date
@@ -12,14 +14,15 @@ from ..common import request_quotations
 from ..analytics.strategy import Strategy
 
 
+# TODO: Create status API
 def run():
     print("## DAILY UPDATE ##")
     try:
         _update_fundamentals()
         _update_quotations()
         _update_indicators()
-    except Exception as error:
-        print(error)
+    except Exception:
+        traceback.print_exc(file=sys.stdout)
 
 
 def _update_fundamentals():
