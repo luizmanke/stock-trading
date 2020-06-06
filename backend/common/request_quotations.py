@@ -51,8 +51,8 @@ def _request_quotations(companies, initial_date):
         ticker_quotations = _request_ticker_quotations(id, initial_date)
         if type(ticker_quotations.loc[0, "Último"]) == str:
             continue
-        new_quotation = new_quotation.set_index("Data")
-        quotations[ticker] = new_quotation
+        ticker_quotations = ticker_quotations.set_index("Data")
+        quotations[ticker] = ticker_quotations
     return quotations
 
 
