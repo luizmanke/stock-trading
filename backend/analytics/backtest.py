@@ -18,10 +18,11 @@ from .wallet import Wallet
 directory = os.path.dirname(__file__)
 
 
+# TODO: Refactor
+# TODO: Make it faster
 class Backtest(Strategy, Wallet):
 
     def __init__(self):
-        super(Backtest, self).__init__()
         self.data_ = pd.DataFrame()
         self.baseline_ = pd.DataFrame()
         self.comparison_ = pd.DataFrame()
@@ -109,7 +110,16 @@ class Backtest(Strategy, Wallet):
         maximum_index = max([period["to"] for period in self._periods])
         fundamentals = self.data_[
             ["ticker", "returnOnInvestedCapital", "priceToEarnings", "cagr"]]
-        quotations = self.data_[["ticker", "close", "volume"]]
+        raw_quotations = self.data_[["ticker", "close", "volume"]]
+
+        # Preprocess
+        quotations = pd.DataFrame()
+        for ticker in set(raw_quotations["ticker"]):
+            ticker_quotation = raw_quotations[raw_quotations["ticker"] == ticker]
+            new_quotation = ticker_quotation.resample("B")
+            new_quotation = new_quotation.fillna(method="ffill").fillna(method="bfill")
+            quotations = pd.concat([quotations, new_quotation])
+        quotations = quotations.sort_index()
 
         # Loop indexes
         indicators = []
@@ -119,12 +129,13 @@ class Backtest(Strategy, Wallet):
         for index in indexes:
 
             # Filter data
-            minimum_index = index - relativedelta(months=4)
+            minimum_index = index - relativedelta(months=6)
             fundamentals_subset = fundamentals[
                 (fundamentals.index <= index) & (fundamentals.index > minimum_index)]
             fundamentals_subset = fundamentals_subset.dropna()
             fundamentals_subset = fundamentals_subset.drop_duplicates("ticker", keep="last")
-            quotations_subset = quotations[quotations.index <= index]
+            quotations_subset = quotations[
+                (quotations.index <= index) & (quotations.index > minimum_index)]
 
             # Compute indicators
             indicators_subset = self.get_indicators(fundamentals_subset, quotations_subset)
@@ -133,7 +144,8 @@ class Backtest(Strategy, Wallet):
             indicators = indicators + indicators_subset
 
         indicators = pd.DataFrame(indicators)
-        self._indicators = indicators.set_index("date")
+        indicators = indicators.set_index("date")
+        self._indicators = indicators.sort_index()
 
     def _evaluate(self, period):
 
@@ -143,16 +155,14 @@ class Backtest(Strategy, Wallet):
         indexes = sorted(set(period_data.index))
 
         # Loop indexes
-        deals = []
-        self.wallet_ = {"remaining_cash": 100000}
-        self.logs_ = pd.DataFrame(columns=self._LOGS_COLUMNS)
+        Wallet.__init__(self, remaining_cash=100000)
         for index in indexes:
 
             # Update wallet
             index_data = period_data[period_data.index == index]
             index_data = index_data.set_index("ticker")
             index_data = index_data[["close"]].to_dict(orient="index")
-            self.update_wallet(deals, index_data, index)
+            self.update_wallet(index_data, index)
 
             # Update deals
             quotations_subset = data[data.index <= index].drop_duplicates(
@@ -161,9 +171,9 @@ class Backtest(Strategy, Wallet):
             quotations_subset = quotations_subset[["close"]].to_dict(orient="index")
             indicators_subset = self._indicators[self._indicators.index == index]
             indicators_subset = indicators_subset.to_dict(orient="records")
-            deals = self.get_deals(quotations_subset, indicators_subset, index)
+            self.compute_deals(quotations_subset, indicators_subset, index)
 
-        return self.logs_.copy()
+        return self.records_.copy()
 
     def _evaluate_baseline(self, period):
 

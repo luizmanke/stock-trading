@@ -14,8 +14,8 @@ class Run(Resource):
     def get(self):
         last_date = _get_last_date()
         filter = {"occurredAt": last_date}
-        fields = {"_id": 0, "ticker": 1, "rate": 1, "trend": 1}
-        sort = [("rate", 1)]
+        fields = {"_id": 0, "ticker": 1, "rank": 1, "trend": 1}
+        sort = [("rank", 1)]
         docs = database.find(
             collection="indicators", filter=filter, projection=fields, sort=sort)
         return docs
