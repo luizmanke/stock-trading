@@ -3,7 +3,6 @@
 
 # System libraries
 import datetime as dt
-import sys
 import traceback
 
 # Own libraries
@@ -14,7 +13,6 @@ from ..common import request_quotations
 from ..analytics.strategy import Strategy
 
 
-# TODO: Create status API
 def run():
     print("## DAILY UPDATE ##")
     try:
