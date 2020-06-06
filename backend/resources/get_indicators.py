@@ -18,7 +18,7 @@ class Run(Resource):
         sort = [("rank", 1)]
         docs = database.find(
             collection="indicators", filter=filter, projection=fields, sort=sort)
-        return docs
+        return {"date": last_date.strftime("%Y-%m-%d"), "data": docs}
 
 
 def _get_last_date():
