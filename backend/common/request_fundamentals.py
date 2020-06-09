@@ -8,12 +8,12 @@ import requests
 
 
 def run():
-    raw_fundamentals = _get_fundamentals()
+    raw_fundamentals = _request_fundamentals()
     fundamentals = _preprocess(raw_fundamentals)
     return fundamentals
 
 
-def _get_fundamentals():
+def _request_fundamentals():
     TICKERS_URL = "http://fundamentus.com.br/resultado.php"
     response = requests.post(url=TICKERS_URL)
     fundamentals = pd.read_html(response.text)[0]
@@ -21,9 +21,14 @@ def _get_fundamentals():
 
 
 def _preprocess(table):
+    table = _rename_columns(table)
+    table = _convert_to_float(table)
+    table = _rescale(table)
+    return _to_list(table)
 
-    # Rename
-    new_table = table.rename(columns={
+
+def _rename_columns(table):
+    table = table.rename(columns={
         "Papel": "ticker", "Cotação": "price", "P/L": "priceToEarnings",
         "P/VP": "priceToBookValue", "PSR": "priceToSalesRatio",
         "Div.Yield": "dividendYield", "P/Ativo": "priceToAsset",
@@ -34,25 +39,32 @@ def _preprocess(table):
         "ROIC": "returnOnInvestedCapital", "ROE": "returnOnEquity",
         "Liq.2meses": "volume", "Patrim. Líq": "netEquity",
         "Dív.Brut/ Patrim.": "grossDebtToEquity", "Cresc. Rec.5a": "cagr"})
+    return table
 
-    # To float
-    new_table = new_table.replace("%", "", regex=True)
-    new_table = new_table.replace("\\.", "", regex=True)
-    new_table = new_table.replace(",", ".", regex=True)
-    tickers = new_table.pop("ticker")
-    new_table = new_table.astype(float)
-    new_table["ticker"] = tickers
 
-    # Rescale
+def _convert_to_float(table):
+    table = table.replace("%", "", regex=True)
+    table = table.replace("\\.", "", regex=True)
+    table = table.replace(",", ".", regex=True)
+    tickers = table.pop("ticker")
+    table = table.astype(float)
+    table["ticker"] = tickers
+    return table
+
+
+def _rescale(table):
     COLUMNS = ["price", "priceToEarnings", "priceToBookValue", "priceToWorkingCapital",
                "priceToEbit", "priceToNetCurrentAsset", "enterpriseValueToEbit",
                "enterpriseValueToEbitda", "currentLiquidity", "volume", "netEquity",
                "grossDebtToEquity"]
     for column in COLUMNS:
-        new_table[column] = new_table[column] / 100
+        table[column] = table[column] / 100
     for column in ["priceToSalesRatio", "priceToAsset"]:
-        new_table[column] = new_table[column] / 1000
+        table[column] = table[column] / 1000
+    return table
 
-    new_table = new_table.drop(["price", "volume"], axis=1)
-    new_table = new_table.to_dict(orient="records")
-    return new_table
+
+def _to_list(table):
+    table = table.drop(["price", "volume"], axis=1)
+    dictionary = table.to_dict(orient="records")
+    return dictionary
