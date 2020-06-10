@@ -34,10 +34,10 @@ def _update_fundamentals():
         item["occurredAt"] = get_today_date()
     print(f" > {len(fundamentals)} items found")
 
-    n_deleted = database.delete(fundamentals, "fundamentals")
+    n_deleted = database.delete_many(fundamentals, "fundamentals")
     print(f" > {n_deleted} items deleted")
 
-    n_inserted = database.insert(fundamentals, "fundamentals")
+    n_inserted = database.insert_many(fundamentals, "fundamentals")
     print(f" > {n_inserted} items inserted")
 
 
@@ -49,10 +49,10 @@ def _update_quotations():
     quotations = request_quotations.run(initial_date)
     print(f" > {len(quotations)} items found")
 
-    n_deleted = database.delete(quotations, "quotations")
+    n_deleted = database.delete_many(quotations, "quotations")
     print(f" > {n_deleted} items deleted")
 
-    n_inserted = database.insert(quotations, "quotations")
+    n_inserted = database.insert_many(quotations, "quotations")
     print(f" > {n_inserted} items inserted")
 
 
@@ -66,10 +66,10 @@ def _update_indicators():
         item["occurredAt"] = get_today_date()
     print(f" > {len(indicators)} new items")
 
-    n_deleted = database.delete(indicators, "indicators")
+    n_deleted = database.delete_many(indicators, "indicators")
     print(f" > {n_deleted} items deleted")
 
-    n_inserted = database.insert(indicators, "indicators")
+    n_inserted = database.insert_many(indicators, "indicators")
     print(f" > {n_inserted} items inserted")
 
 
