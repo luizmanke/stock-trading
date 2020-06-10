@@ -88,4 +88,5 @@ def _get_last_quotations():
     minimum_date = get_today_date() - dt.timedelta(days=120)
     filter = {"occurredAt": {"$gte": minimum_date}}
     fields = {"ticker": 1, "close": 1, "volume": 1}
-    return database.find(collection="quotations", filter=filter, projection=fields)
+    sort = [("occurredAt", 1)]
+    return database.find(collection="quotations", filter=filter, projection=fields, sort=sort)
