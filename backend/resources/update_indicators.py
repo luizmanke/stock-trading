@@ -20,7 +20,7 @@ def run():
         item["occurredAt"] = get_today_date()
     print(f" > {len(indicators)} new items")
 
-    n_deleted = database.delete_many(indicators, "indicators")
+    n_deleted = database.delete({}, "indicators")
     print(f" > {n_deleted} items deleted")
 
     n_inserted = database.insert_many(indicators, "indicators")

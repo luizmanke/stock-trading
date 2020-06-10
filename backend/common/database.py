@@ -27,7 +27,7 @@ def delete_many(items, collection):
     return delete_count
 
 
-def delete(item, collection, filter):
+def delete(filter, collection):
     connection = _get_connection()
     delete_count = 0
     delete_response = connection[collection].delete_many(filter)
