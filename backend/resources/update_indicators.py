@@ -39,7 +39,7 @@ def _get_last_fundamentals():
 
 
 def _get_last_quotations():
-    minimum_date = get_today_date() - dt.timedelta(days=120)
+    minimum_date = get_today_date() - dt.timedelta(days=150)
     filter = {"occurredAt": {"$gte": minimum_date}}
     fields = {"ticker": 1, "close": 1, "volume": 1}
     sort = [("occurredAt", 1)]

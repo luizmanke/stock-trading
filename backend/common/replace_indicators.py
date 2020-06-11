@@ -20,47 +20,38 @@ def run():
 
 def _get_data():
 
-    fields = {"ticker": 1, "occurredAt": 1, "cagr": 1,
-              "returnOnInvestedCapital": 1, "priceToEarnings": 1}
-    sort = [("occurredAt", 1)]
-    fundamentals = database.find(collection="fundamentals", projection=fields, sort=sort)
-    fundamentals = pd.DataFrame(fundamentals)
+    pipeline = [{"$sort": {"occurredAt": 1}},
+                {"$group": {
+                    "_id": "$ticker",
+                    "ticker": {"$last": "$ticker"},
+                    "occurredAt": {"$last": "$occurredAt"},
+                    "cagr": {"$last": "$cagr"},
+                    "returnOnInvestedCapital": {"$last": "$returnOnInvestedCapital"},
+                    "priceToEarnings": {"$last": "$priceToEarnings"}}}]
+    fundamentals = database.aggregate(pipeline, "fundamentals")
 
+    index = max(fundamentals, key=lambda item: item["occurredAt"])["occurredAt"]
+    minimum_index = index - dt.timedelta(days=150)
+    filter = {"occurredAt": {"$gte": minimum_index}}
     fields = {"ticker": 1, "occurredAt": 1, "close": 1, "volume": 1}
     sort = [("occurredAt", 1)]
-    quotations = database.find(collection="quotations", projection=fields, sort=sort)
-    quotations = pd.DataFrame(quotations)
+    quotations = database.find(
+        collection="quotations", filter=filter, projection=fields, sort=sort)
 
     return fundamentals, quotations
 
 
 def _compute_indicators(fundamentals, quotations):
-    indicators = []
-    for index in set(fundamentals["occurredAt"]):
-
-        index_fundamentals = fundamentals[
-            (fundamentals["occurredAt"] <= index) &
-            (fundamentals["occurredAt"] > (index - dt.timedelta(days=150)))]
-        index_fundamentals = index_fundamentals.drop_duplicates(subset=["ticker"], keep="last")
-
-        index_quotations = quotations[
-            (quotations["occurredAt"] <= index) &
-            (quotations["occurredAt"] > (index - dt.timedelta(days=120)))]
-
-        new_indicators = Strategy().get_indicators(index_fundamentals, index_quotations)
-        for item in new_indicators:
-            item["occurredAt"] = index
-
-        indicators = indicators + new_indicators
+    indicators = Strategy().get_indicators(fundamentals, quotations)
+    index = max(fundamentals, key=lambda item: item["occurredAt"])["occurredAt"]
+    for item in indicators:
+        item["occurredAt"] = index
     return indicators
 
 
 def _delete_colection():
-    fields = {"ticker": 1, "occurredAt": 1}
-    indicators = database.find(collection="indicators", projection=fields)
-    connection = database._get_connection()
-    connection["indicators"].drop()
-    print(f" > {len(indicators)} items deleted")
+    delete_count = database.delete({}, "indicators")
+    print(f" > {delete_count} items deleted")
 
 
 def _insert_data(indicators):
