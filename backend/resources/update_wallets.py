@@ -11,7 +11,6 @@ from ..common import database
 from ..analytics.wallet import Wallet
 
 
-# TODO: Make it compatible with replace_records.py
 def run():
     print("Wallets...")
     _update_baseline()

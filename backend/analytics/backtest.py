@@ -18,8 +18,6 @@ from .wallet import Wallet
 directory = os.path.dirname(__file__)
 
 
-# TODO: Refactor
-# TODO: Make it faster
 class Backtest(Strategy, Wallet):
 
     def __init__(self):

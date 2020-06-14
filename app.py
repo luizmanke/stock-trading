@@ -7,6 +7,8 @@
 # TODO: Make replace_records.py functions reusable
 # TODO: Update backtest data using 2011+ data
 # TODO: Optimize backtest
+# TODO: Operate in downtrend
+# TODO: Add DARF/transactional charges
 
 # System libraries
 from flask import Flask
