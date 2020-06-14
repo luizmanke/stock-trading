@@ -9,6 +9,7 @@ DESCENDING_KEY = "returnOnInvestedCapital"
 ASCENDING_KEY = "priceToEarnings"
 
 
+# TODO: Turn input in DataFrame
 # TODO: Don't filter (compute everything)
 class Strategy:
 

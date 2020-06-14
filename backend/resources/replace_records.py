@@ -16,24 +16,79 @@ from ..analytics.wallet import Wallet
 
 def run():
     print("Replacing...")
-    _replace_strategy()
     _replace_baseline()
+    _replace_strategy()
 
 
-def _replace_strategy():
-    USER_ID = 1
+def _replace_baseline():
+    USER_ID = 0
     fundamentals, quotations = _get_data()
-    indicators = _compute_indicators(fundamentals, quotations)
-    wallet, records = _compute_records(indicators, quotations)
+    wallet, records = _compute_baseline(fundamentals, quotations)
     _save_wallet(USER_ID, wallet)
     _save_records(USER_ID, records)
     _update_performance(USER_ID)
 
 
-def _compute_indicators(fundamentals, quotations):
-    fundamentals = pd.DataFrame(fundamentals).set_index("occurredAt")
-    quotations = pd.DataFrame(quotations).set_index("occurredAt")
+def _compute_baseline(fundamentals, quotations):
 
+    # Loop indexes
+    records = []
+    wallet = {"remainingCash": 100000, "wallet": {}}
+    for index in sorted(set(fundamentals.index)):
+        value = quotations[(quotations.index == index) & (quotations["ticker"] == "IBOV")]
+        if not value.empty:
+            value = value.loc[index, "close"]
+
+            # Start wallet
+            if "IBOV" not in wallet["wallet"]:
+                n_stocks = int(wallet["remainingCash"] / value)
+                wallet["remainingCash"] = wallet["remainingCash"] - n_stocks * value
+                wallet["wallet"]["IBOV"] = {
+                    "initial_date": index,
+                    "n_stocks": n_stocks,
+                    "initial_price": value,
+                    "current_date": index,
+                    "current_price": value}
+
+            # Update wallet
+            else:
+                wallet["wallet"]["IBOV"]["current_date"] = index
+                wallet["wallet"]["IBOV"]["current_price"] = value
+
+        records.append(_compute_baseline_record(wallet, index))
+    return wallet, records
+
+
+def _compute_baseline_record(wallet, index):
+    record = {}
+    if "IBOV" in wallet["wallet"]:
+        item = wallet["wallet"]["IBOV"]
+    else:
+        item = {"n_stocks": 0, "current_price": 0}
+    record["patrimony"] = wallet["remainingCash"] + item["n_stocks"] * item["current_price"]
+    record["n_trades_with_gain"] = 0
+    record["n_trades_with_loss"] = 0
+    record["gain_profit"] = 0
+    record["loss_profit"] = 0
+    record["avg_gain_profit_percentage"] = 0
+    record["avg_loss_profit_percentage"] = 0
+    record["occurredAt"] = index
+    return record
+
+
+def _replace_strategy():
+    USER_ID = 1
+    fundamentals, quotations = _get_data()
+    indicators = _compute_strategy_indicators(fundamentals, quotations)
+    wallet, records = _compute_strategy(indicators, quotations)
+    _save_wallet(USER_ID, wallet)
+    _save_records(USER_ID, records)
+    _update_performance(USER_ID)
+
+
+def _compute_strategy_indicators(fundamentals, quotations):
+
+    # Loop indexes
     indicators = []
     for index in sorted(set(fundamentals.index)):
         minimum_index = index - relativedelta(months=6)
@@ -51,12 +106,11 @@ def _compute_indicators(fundamentals, quotations):
             item["occurredAt"] = index
         indicators = indicators + indicators_subset
 
+    indicators = pd.DataFrame(indicators).set_index("occurredAt")
     return indicators
 
 
-def _compute_records(indicators, quotations):
-    indicators = pd.DataFrame(indicators).set_index("occurredAt")
-    quotations = pd.DataFrame(quotations).set_index("occurredAt")
+def _compute_strategy(indicators, quotations):
 
     # Loop indexes
     wallet = Wallet(remaining_cash=100000)
@@ -85,72 +139,22 @@ def _compute_records(indicators, quotations):
     return wallet, records
 
 
-def _replace_baseline():
-    USER_ID = 0
-    fundamentals, quotations = _get_data()
-    wallet, records = _compute_baseline_wallet(fundamentals, quotations)
-    _save_wallet(USER_ID, wallet)
-    _save_records(USER_ID, records)
-    _update_performance(USER_ID)
-
-
 def _get_data():
 
+    # Fundamentals
     fields = {"ticker": 1, "occurredAt": 1, "cagr": 1,
               "returnOnInvestedCapital": 1, "priceToEarnings": 1}
     sort = [("occurredAt", 1)]
     fundamentals = database.find(collection="fundamentals", projection=fields, sort=sort)
+    fundamentals = pd.DataFrame(fundamentals).set_index("occurredAt")
 
+    # Quotations
     fields = {"ticker": 1, "occurredAt": 1, "close": 1, "volume": 1}
     sort = [("occurredAt", 1)]
     quotations = database.find(collection="quotations", projection=fields, sort=sort)
-
-    return fundamentals, quotations
-
-
-def _compute_baseline_wallet(fundamentals, quotations):
-    fundamentals = pd.DataFrame(fundamentals).set_index("occurredAt")
     quotations = pd.DataFrame(quotations).set_index("occurredAt")
 
-    records = []
-    wallet = {"remainingCash": 100000, "wallet": {}}
-    for index in sorted(set(fundamentals.index)):
-        value = quotations[(quotations.index == index) & (quotations["ticker"] == "IBOV")]
-        if not value.empty:
-            value = value.loc[index, "close"]
-            if "IBOV" not in wallet["wallet"]:
-                n_stocks = int(wallet["remainingCash"] / value)
-                wallet["remainingCash"] = wallet["remainingCash"] - n_stocks * value
-                wallet["wallet"]["IBOV"] = {
-                    "initial_date": index,
-                    "n_stocks": n_stocks,
-                    "initial_price": value,
-                    "current_date": index,
-                    "current_price": value}
-            else:
-                wallet["wallet"]["IBOV"]["current_date"] = index
-                wallet["wallet"]["IBOV"]["current_price"] = value
-
-        records.append(_compute_baseline_record(wallet, index))
-
-    return wallet, records
-
-
-def _compute_baseline_record(wallet, index):
-    record = {}
-    if "IBOV" in wallet["wallet"]:
-        item = wallet["wallet"]["IBOV"]
-    else:
-        item = {"n_stocks": 0, "current_price": 0}
-    record["patrimony"] = wallet["remainingCash"] + item["n_stocks"] * item["current_price"]
-    record["n_trades_with_gain"] = 0
-    record["n_trades_with_loss"] = 0
-    record["gain_profit"] = 0
-    record["loss_profit"] = 0
-    record["avg_gain_profit_percentage"] = 0
-    record["avg_loss_profit_percentage"] = 0
-    record["occurredAt"] = index
-    return record
+    return fundamentals, quotations
 
 
 def _save_wallet(user_id, wallet):

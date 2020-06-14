@@ -253,12 +253,12 @@ class Backtest(Strategy, Wallet):
         loss_tmp = n_trades_with_loss if n_trades_with_loss else 1
         avg_gain_per_trade = results["gain_profit"].sum() / gain_tmp
         avg_loss_per_trade = results["loss_profit"].sum() / loss_tmp
-        avg_gain_percentage = ((results["n_trades_with_gain"] *
-                                results["avg_gain_profit_percentage"]).sum() /
-                               gain_tmp) * 100
-        avg_loss_percentage = ((results["n_trades_with_loss"] *
-                                results["avg_loss_profit_percentage"]).sum() /
-                               loss_tmp) * 100
+        avg_gain_in_percentage = ((results["n_trades_with_gain"] *
+                                   results["avg_gain_profit_percentage"]).sum() /
+                                  gain_tmp) * 100
+        avg_loss_in_percentage = ((results["n_trades_with_loss"] *
+                                   results["avg_loss_profit_percentage"]).sum() /
+                                  loss_tmp) * 100
 
         # Payoff
         payoff = profit / total_trades
@@ -279,8 +279,8 @@ class Backtest(Strategy, Wallet):
         statistics["percentage_of_loss_trades"] = percentage_of_loss_trades
         statistics["avg_gain_per_trade"] = avg_gain_per_trade
         statistics["avg_loss_per_trade"] = avg_loss_per_trade
-        statistics["avg_gain_percentage"] = avg_gain_percentage
-        statistics["avg_loss_percentage"] = avg_loss_percentage
+        statistics["avg_gain_in_percentage"] = avg_gain_in_percentage
+        statistics["avg_loss_in_percentage"] = avg_loss_in_percentage
         statistics["payoff"] = payoff
         statistics["profit_factor"] = profit_factor
         statistics["recuperation_factor"] = recuperation_factor

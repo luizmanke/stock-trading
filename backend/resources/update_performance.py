@@ -12,8 +12,10 @@ from ..common import database
 
 def run():
     print("Performance...")
+
     print(f" - baseline")
     _update_performance(user_id=0)
+
     print(f" - strategy")
     _update_performance(user_id=1)
 
@@ -94,18 +96,20 @@ def _compute_number_of_trades(performance, records):
     loss_tmp = n_trades_with_loss if n_trades_with_loss else 1
     avg_gain_per_trade = records["gain_profit"].sum() / gain_tmp
     avg_loss_per_trade = records["loss_profit"].sum() / loss_tmp
-    avg_gain_percentage = ((n_trades_with_gain * records["avg_gain_profit_percentage"]).sum() /
-                           gain_tmp) * 100
-    avg_loss_percentage = ((n_trades_with_loss * records["avg_loss_profit_percentage"]).sum() /
-                           loss_tmp) * 100
+    avg_gain_in_percentage = ((n_trades_with_gain *
+                               records["avg_gain_profit_percentage"]).sum() /
+                              gain_tmp) * 100
+    avg_loss_in_percentage = ((n_trades_with_loss *
+                               records["avg_loss_profit_percentage"]).sum() /
+                              loss_tmp) * 100
 
     performance["total_trades"] = int(total_trades)
     performance["percentage_of_gain_trades"] = float(percentage_of_gain_trades)
     performance["percentage_of_loss_trades"] = float(percentage_of_loss_trades)
     performance["avg_gain_per_trade"] = float(avg_gain_per_trade)
     performance["avg_loss_per_trade"] = float(avg_loss_per_trade)
-    performance["avg_gain_percentage"] = float(avg_gain_percentage)
-    performance["avg_loss_percentage"] = float(avg_loss_percentage)
+    performance["avg_gain_in_percentage"] = float(avg_gain_in_percentage)
+    performance["avg_loss_in_percentage"] = float(avg_loss_in_percentage)
 
 
 def _compute_payoff(performance, records):

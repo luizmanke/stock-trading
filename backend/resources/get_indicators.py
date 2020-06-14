@@ -9,7 +9,7 @@ from flask_restful import Resource
 from ..common import database
 
 
-class Run(Resource):
+class GetIndicators(Resource):
     def get(self):
         fields = {"_id": 0, "ticker": 1, "rank": 1, "trend": 1, "occurredAt": 1}
         sort = [("rank", 1)]

@@ -13,6 +13,7 @@ from ..analytics.strategy import Strategy
 def run():
     print("Indicators...")
 
+    # Compute
     fundamentals = _get_last_fundamentals()
     quotations = _get_last_quotations()
     indicators = Strategy().get_indicators(fundamentals, quotations)
@@ -20,6 +21,7 @@ def run():
         item["occurredAt"] = get_today_date()
     print(f" > {len(indicators)} new items")
 
+    # Replace
     n_deleted = database.delete({}, "indicators")
     print(f" > {n_deleted} items deleted")
 

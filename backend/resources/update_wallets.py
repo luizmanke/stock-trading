@@ -11,6 +11,7 @@ from ..common import database
 from ..analytics.wallet import Wallet
 
 
+# TODO: Make it compatible with replace_records.py
 def run():
     print("Wallets...")
     _update_baseline()
@@ -29,9 +30,11 @@ def _update_baseline():
 
 
 def _get_baseline_value():
-    filter = {"occurredAt": get_today_date(), "ticker": "IBOV"}
+    filter = {"ticker": "IBOV"}
     fields = {"ticker": 1, "close": 1}
-    docs = database.find(collection="quotations", filter=filter, projection=fields)
+    sort = [("occurredAt", -1)]
+    docs = database.find(
+        collection="quotations", filter=filter, projection=fields, sort=sort, limit=1)
     return docs[0]["close"]
 
 
@@ -86,9 +89,12 @@ def _get_wallet(user_id):
 
 
 def _get_quotations():
-    filter = {"occurredAt": {"$eq": get_today_date()}}
-    fields = {"ticker": 1, "close": 1}
-    docs = database.find(collection="quotations", filter=filter, projection=fields)
+    pipeline = [{"$sort": {"occurredAt": 1}},
+                {"$group": {
+                    "_id": "$ticker",
+                    "ticker": {"$last": "$ticker"},
+                    "close": {"$last": "$close"}}}]
+    docs = database.aggregate(pipeline, "quotations")
     docs = pd.DataFrame(docs).set_index("ticker")
     docs = docs[["close"]].to_dict(orient="index")
     return docs
