@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# TODO: Save monthly performance
 # TODO: Create lint and unit tests
 # TODO: Change strategy output form dict to dataframe
 # TODO: Compute indicators for every stock

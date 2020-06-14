@@ -16,7 +16,11 @@ from ..analytics.wallet import Wallet
 
 def run():
     print("Replacing...")
+
+    print(" - baseline...")
     _replace_baseline()
+
+    print(" - strategy...")
     _replace_strategy()
 
 
@@ -164,10 +168,10 @@ def _save_wallet(user_id, wallet):
 
     filter = {"userId": {"$eq": user_id}}
     n_deleted = database.delete(filter, "wallets")
-    print(f"  > {n_deleted} wallets deleted")
+    print(f"   > {n_deleted} wallets deleted")
 
     n_inserted = database.insert_many([wallet], "wallets")
-    print(f"  > {n_inserted} wallets inserted")
+    print(f"   > {n_inserted} wallets inserted")
 
 
 def _save_records(user_id, records):
@@ -179,10 +183,10 @@ def _save_records(user_id, records):
 
     filter = {"userId": {"$eq": user_id}}
     n_deleted = database.delete(filter, "records")
-    print(f"  > {n_deleted} records deleted")
+    print(f"   > {n_deleted} records deleted")
 
     n_inserted = database.insert_many(records, "records")
-    print(f"  > {n_inserted} records inserted")
+    print(f"   > {n_inserted} records inserted")
 
 
 if __name__ == "__main__":
