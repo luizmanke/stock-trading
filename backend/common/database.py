@@ -8,7 +8,7 @@ import ssl
 from pymongo import MongoClient
 
 
-def insert(items, collection):
+def insert_many(items, collection):
     connection = _get_connection()
     created_at = dt.datetime.utcnow()
     for item in items:
@@ -17,13 +17,21 @@ def insert(items, collection):
     return len(insert_response.inserted_ids)
 
 
-def delete(items, collection):
+def delete_many(items, collection):
     connection = _get_connection()
     delete_count = 0
     for item in items:
         filter_ = {"occurredAt": item["occurredAt"], "ticker": item["ticker"]}
         delete_response = connection[collection].delete_many(filter_)
         delete_count += delete_response.deleted_count
+    return delete_count
+
+
+def delete(filter, collection):
+    connection = _get_connection()
+    delete_count = 0
+    delete_response = connection[collection].delete_many(filter)
+    delete_count += delete_response.deleted_count
     return delete_count
 
 
