@@ -17,7 +17,7 @@ from flask_restful import Api
 
 # Own libraries
 from backend.resources.get_indicators import GetIndicators
-from backend.resources.get_performance import GetPerformance
+from backend.resources.get_performances import GetPerformances
 
 # Initiate app
 app = Flask(__name__)
@@ -25,7 +25,7 @@ api = Api(app)
 
 # Routes
 api.add_resource(GetIndicators, "/get-indicators")
-api.add_resource(GetPerformance, "/get-performances")
+api.add_resource(GetPerformances, "/get-performances")
 
 # Test route
 @app.route("/", methods=["GET"])

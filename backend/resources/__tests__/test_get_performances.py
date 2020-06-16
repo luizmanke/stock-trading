@@ -16,7 +16,6 @@ from ..get_performances import GetPerformances
 load_dotenv()
 
 
-@pytest.mark.integration
 def test_get_performances():
     docs = GetPerformances().get()
 
@@ -51,7 +50,7 @@ def test_get_performances():
 
 
 @pytest.mark.integration
-def test_get_indicators_endpoint():
+def test_get_performances_endpoint():
     app = os.environ.get("HEROKU_APP")
     url = f"http://{app}.herokuapp.com/get-performances"
     response = requests.get(url)
