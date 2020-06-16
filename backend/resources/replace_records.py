@@ -7,7 +7,7 @@ import pandas as pd
 from dateutil.relativedelta import relativedelta
 
 # Own libraries
-from .update_performance import _update_performance
+from .update_performances import _update_performance
 from .utils import get_today_date
 from ..common import database
 from ..analytics.strategy import Strategy

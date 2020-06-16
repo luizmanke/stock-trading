@@ -4,8 +4,21 @@
 # System libraries
 import datetime as dt
 import os
-import ssl
 from pymongo import MongoClient
+
+
+def find(collection, **kwargs):
+    connection = _get_connection()
+    docs = connection[collection].find(**kwargs)
+    docs = [doc for doc in docs]
+    return docs
+
+
+def aggregate(pipeline, collection):
+    connection = _get_connection()
+    docs = connection[collection].aggregate(pipeline)
+    docs = [doc for doc in docs]
+    return docs
 
 
 def insert_many(items, collection):
@@ -35,21 +48,7 @@ def delete(filter, collection):
     return delete_count
 
 
-def find(collection, **kwargs):
-    connection = _get_connection()
-    docs = connection[collection].find(**kwargs)
-    docs = [doc for doc in docs]
-    return docs
-
-
-def aggregate(pipeline, collection):
-    connection = _get_connection()
-    docs = connection[collection].aggregate(pipeline)
-    docs = [doc for doc in docs]
-    return docs
-
-
 def _get_connection():
     url = os.environ.get("MONGODB_URL")
-    client = MongoClient(url, ssl_cert_reqs=ssl.CERT_NONE)
+    client = MongoClient(url, tlsAllowInvalidCertificates=True)
     return client["cream"]

@@ -7,7 +7,7 @@ from apscheduler.schedulers.background import BlockingScheduler
 
 # Own libraries
 from backend.resources import update_metadata, update_indicators, \
-    update_wallets, update_performance, utils
+    update_wallets, update_performances, utils
 
 
 def daily_update():
@@ -16,7 +16,7 @@ def daily_update():
         update_metadata.run()
         update_indicators.run()
         update_wallets.run()
-        update_performance.run()
+        update_performances.run()
         utils.send_email("Daily update: Succeeded", "")
     except Exception:
         error = traceback.format_exc()

@@ -9,7 +9,7 @@ from flask_restful import Resource
 from ..common import database
 
 
-class GetPerformance(Resource):
+class GetPerformances(Resource):
     def get(self):
         filter = {"userId": {"$in": [0, 1]}}
         fields = {"_id": 0, "occurredAt": 0, "createdAt": 0}
