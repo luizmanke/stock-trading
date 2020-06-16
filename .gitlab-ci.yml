@@ -8,6 +8,8 @@ Unit Tests:
   image: python:3.8
   rules:
     - if: "$CI_COMMIT_REF_NAME == 'dev'"
+  variables:
+    MONGODB_URL: $MONGODB_URL_DEV
   script:
     - pip install -r requirements.txt
     - pycodestyle --max-line-length=95 .
