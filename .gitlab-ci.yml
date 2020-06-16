@@ -1,18 +1,17 @@
 stages:
-  - test
+  - unit test
   - deploy
+  - integration test
 
-Tests:
-  stage: test
+Unit Tests:
+  stage: unit test
   image: python:3.8
   rules:
     - if: "$CI_COMMIT_REF_NAME == 'dev'"
   script:
     - pip install -r requirements.txt
-    - pycodestyle --max-line-length=95 app.py
-    - pycodestyle --max-line-length=95 triggers.py
-    - pycodestyle --max-line-length=95 backend/.
-    - pytest -v
+    - pycodestyle --max-line-length=95 .
+    - pytest -v -m "not integration"
 
 Deploy to Heroku DEV:
   stage: deploy
@@ -35,3 +34,14 @@ Deploy to Heroku PRD:
     - apt-get install -y ruby-dev
     - gem install dpl
     - dpl --provider=heroku --app=$HEROKU_APP_PRD --api-key=$HEROKU_API_KEY
+
+Integration Tests:
+  stage: integration test
+  image: python:3.8
+  script:
+    - if [ $CI_COMMIT_REF_NAME = "master" ]; then MONGODB_URL=$MONGODB_URL_PRD; else MONGODB_URL=$MONGODB_URL_DEV; fi;
+    - if [ $CI_COMMIT_REF_NAME = "master" ]; then HEROKU_APP=$HEROKU_APP_PRD; else HEROKU_APP=$HEROKU_APP_DEV; fi;
+    - export MONGODB_URL
+    - export HEROKU_APP
+    - pip install -r requirements.txt
+    - pytest -v -m integration
