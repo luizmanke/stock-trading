@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# TODO: Create lint and unit tests
+# TODO: Refactor
+# TODO: Remove fundamentals from May
 # TODO: Change strategy output form dict to dataframe
 # TODO: Compute indicators for every stock
 # TODO: Make replace_records.py functions reusable
@@ -24,7 +25,7 @@ api = Api(app)
 
 # Routes
 api.add_resource(GetIndicators, "/get-indicators")
-api.add_resource(GetPerformance, "/get-performance")
+api.add_resource(GetPerformance, "/get-performances")
 
 # Test route
 @app.route("/", methods=["GET"])
