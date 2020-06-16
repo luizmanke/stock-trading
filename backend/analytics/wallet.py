@@ -132,9 +132,6 @@ class Record:
         return n_trades, profit, avg_profit_in_percentage
 
 
-# TODO: Add transaction charge
-# TODO: Add DARF charge
-# TODO: Operate in downtrend
 class Wallet(Dealer, Record):
 
     def __init__(self, remaining_cash):

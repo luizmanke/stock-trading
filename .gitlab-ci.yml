@@ -1,12 +1,25 @@
 stages:
-  - Deploy to Heroku DEV
-  - Deploy to Heroku PRD
+  - unit test
+  - deploy
+  - integration test
+
+Unit Tests:
+  stage: unit test
+  image: python:3.8
+  rules:
+    - if: "$CI_COMMIT_REF_NAME == 'dev'"
+  variables:
+    MONGODB_URL: $MONGODB_URL_DEV
+  script:
+    - pip install -r requirements.txt
+    - pycodestyle --max-line-length=95 .
+    - pytest -v -m "not integration"
 
 Deploy to Heroku DEV:
-  stage: Deploy to Heroku DEV
+  stage: deploy
   image: ruby:latest
   rules:
-    - if: "$CI_COMMIT_REF_NAME == 'dev' && $CI_PIPELINE_SOURCE != 'schedule'"
+    - if: "$CI_COMMIT_REF_NAME == 'dev'"
   script:
     - apt-get update -qy
     - apt-get install -y ruby-dev
@@ -14,12 +27,23 @@ Deploy to Heroku DEV:
     - dpl --provider=heroku --app=$HEROKU_APP_DEV --api-key=$HEROKU_API_KEY
 
 Deploy to Heroku PRD:
-  stage: Deploy to Heroku PRD
+  stage: deploy
   image: ruby:latest
   rules:
-    - if: "$CI_COMMIT_REF_NAME == 'master' && $CI_PIPELINE_SOURCE != 'schedule'"
+    - if: "$CI_COMMIT_REF_NAME == 'master'"
   script:
     - apt-get update -qy
     - apt-get install -y ruby-dev
     - gem install dpl
     - dpl --provider=heroku --app=$HEROKU_APP_PRD --api-key=$HEROKU_API_KEY
+
+Integration Tests:
+  stage: integration test
+  image: python:3.8
+  script:
+    - if [ $CI_COMMIT_REF_NAME = "master" ]; then MONGODB_URL=$MONGODB_URL_PRD; else MONGODB_URL=$MONGODB_URL_DEV; fi;
+    - if [ $CI_COMMIT_REF_NAME = "master" ]; then HEROKU_APP=$HEROKU_APP_PRD; else HEROKU_APP=$HEROKU_APP_DEV; fi;
+    - export MONGODB_URL
+    - export HEROKU_APP
+    - pip install -r requirements.txt
+    - pytest -v -m integration

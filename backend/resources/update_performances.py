@@ -4,10 +4,14 @@
 # System libraries
 import datetime as dt
 import pandas as pd
+import warnings
 
 # Own libraries
 from .utils import get_today_date
 from ..common import database
+
+# Configurations
+warnings.filterwarnings("ignore")
 
 
 def run():
@@ -21,8 +25,22 @@ def run():
 
 
 def _update_performance(user_id):
-    record = _get_records(user_id)
-    performance = _compute_performance(record)
+    records = _get_records(user_id)
+    records["year"] = records.index.year
+    records["month"] = records.index.month
+    aux_records = records.reset_index(drop=False)
+
+    performance = {"initial_date": records.index[0], "current_date": records.index[-1]}
+    performance["overall"] = _compute_performance(records)
+    for year in sorted(set(records["year"]), reverse=True):
+        for month in sorted(set(records["month"]), reverse=True):
+            period_records = records[(records["year"] == year) & (records["month"] == month)]
+            first_date = period_records.index[0]
+            first_index = aux_records[aux_records["occurredAt"] == first_date].index[0]
+            if first_index:
+                past_record = records.iloc[first_index - 1:first_index]
+                period_records = pd.concat([past_record, period_records])
+            performance[f"{year}-{month:02d}"] = _compute_performance(period_records)
     _save_performance(user_id, performance)
 
 
@@ -31,12 +49,11 @@ def _get_records(user_id):
     filter = {"userId": user_id}
     sort = [("occurredAt", 1)]
     docs = database.find(collection="records", filter=filter, projection=fields, sort=sort)
-    return pd.DataFrame(docs)
+    return pd.DataFrame(docs).set_index("occurredAt")
 
 
 def _compute_performance(records):
     performance = {}
-    records = records.set_index("occurredAt")
     _compute_profit(performance, records["patrimony"])
     _compute_sharp_ratio(performance, records["patrimony"])
     _compute_drawdown(performance, records["patrimony"])
