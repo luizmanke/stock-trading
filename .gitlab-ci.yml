@@ -6,8 +6,8 @@ stages:
 Unit Tests:
   stage: unit test
   image: python:3.8
-  rules:
-    - if: "$CI_COMMIT_REF_NAME == 'dev'"
+  only:
+    - dev
   variables:
     MONGODB_URL: $MONGODB_URL_DEV
   script:
@@ -18,8 +18,8 @@ Unit Tests:
 Deploy to Heroku DEV:
   stage: deploy
   image: ruby:latest
-  rules:
-    - if: "$CI_COMMIT_REF_NAME == 'dev'"
+  only:
+    - dev
   script:
     - apt-get update -qy
     - apt-get install -y ruby-dev
@@ -29,8 +29,8 @@ Deploy to Heroku DEV:
 Deploy to Heroku PRD:
   stage: deploy
   image: ruby:latest
-  rules:
-    - if: "$CI_COMMIT_REF_NAME == 'master'"
+  only:
+    - master
   script:
     - apt-get update -qy
     - apt-get install -y ruby-dev
