@@ -24,7 +24,6 @@ def run():
     # Replace
     n_deleted = database.delete({}, "indicators")
     print(f" > {n_deleted} items deleted")
-
     n_inserted = database.insert_many(indicators, "indicators")
     print(f" > {n_inserted} items inserted")
 
@@ -42,7 +41,7 @@ def _get_last_fundamentals():
 
 def _get_last_quotations():
     minimum_date = get_today_date() - dt.timedelta(days=150)
-    filter = {"occurredAt": {"$gte": minimum_date}}
+    filter_ = {"occurredAt": {"$gte": minimum_date}}
     fields = {"ticker": 1, "close": 1, "volume": 1}
     sort = [("occurredAt", 1)]
-    return database.find(collection="quotations", filter=filter, projection=fields, sort=sort)
+    return database.find(collection="quotations", filter=filter_, projection=fields, sort=sort)

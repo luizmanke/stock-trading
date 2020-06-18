@@ -19,14 +19,15 @@ def run():
 def _update_fundamentals():
     print("Fundamentals...")
 
+    # Request
     fundamentals = request_fundamentals.run()
     for item in fundamentals:
         item["occurredAt"] = get_today_date()
     print(f" > {len(fundamentals)} items found")
 
+    # Update
     n_deleted = database.delete_many(fundamentals, "fundamentals")
     print(f" > {n_deleted} items deleted")
-
     n_inserted = database.insert_many(fundamentals, "fundamentals")
     print(f" > {n_inserted} items inserted")
 
@@ -34,13 +35,14 @@ def _update_fundamentals():
 def _update_quotations():
     print("Quotations...")
 
+    # Request
     initial_date = get_today_date() - dt.timedelta(days=2)
     initial_date = initial_date.strftime(("%d/%m/%Y"))
     quotations = request_quotations.run(initial_date)
     print(f" > {len(quotations)} items found")
 
+    # Update
     n_deleted = database.delete_many(quotations, "quotations")
     print(f" > {n_deleted} items deleted")
-
     n_inserted = database.insert_many(quotations, "quotations")
     print(f" > {n_inserted} items inserted")

@@ -7,7 +7,7 @@ import pandas as pd
 
 # Own libraries
 from .utils import get_today_date
-from ..common import database
+from ..common import baseline, database
 from ..analytics.wallet import Wallet
 
 
@@ -20,53 +20,22 @@ def run():
 def _update_baseline():
     print(" - baseline")
     USER_ID = 0
+    index = get_today_date()
     wallet = _get_wallet(USER_ID)
-    value = _get_baseline_value()
-    new_wallet = _compute_baseline_wallet(wallet, value)
-    new_record = _compute_baseline_record(new_wallet)
-    _save_wallet(USER_ID, new_wallet)
-    _save_record(USER_ID, new_record)
+    stock_price = _get_baseline_price()
+    baseline.update_wallet(wallet, stock_price, index)
+    record = baseline.compute_record(wallet)
+    _save_wallet(USER_ID, wallet)
+    _save_record(USER_ID, record)
 
 
-def _get_baseline_value():
-    filter = {"ticker": "IBOV"}
+def _get_baseline_price():
+    filter_ = {"ticker": "IBOV"}
     fields = {"ticker": 1, "close": 1}
     sort = [("occurredAt", -1)]
     docs = database.find(
-        collection="quotations", filter=filter, projection=fields, sort=sort, limit=1)
+        collection="quotations", filter=filter_, projection=fields, sort=sort, limit=1)
     return docs[0]["close"]
-
-
-def _compute_baseline_wallet(wallet, value):
-    wallet = wallet.copy()
-    remaining_cash = wallet["remainingCash"]
-    date = get_today_date()
-    if "IBOV" not in wallet["wallet"]:
-        n_stocks = int(remaining_cash / value)
-        wallet["remainingCash"] = remaining_cash - n_stocks * value
-        wallet["wallet"]["IBOV"] = {
-            "initial_date": date,
-            "n_stocks": n_stocks,
-            "initial_price": value,
-            "current_date": date,
-            "current_price": value}
-    else:
-        wallet["wallet"]["IBOV"]["current_date"] = date
-        wallet["wallet"]["IBOV"]["current_price"] = value
-    return wallet
-
-
-def _compute_baseline_record(wallet):
-    item = wallet["wallet"]["IBOV"]
-    record = {}
-    record["patrimony"] = wallet["remainingCash"] + item["n_stocks"] * item["current_price"]
-    record["n_trades_with_gain"] = 0
-    record["n_trades_with_loss"] = 0
-    record["gain_profit"] = 0
-    record["loss_profit"] = 0
-    record["avg_gain_profit_percentage"] = 0
-    record["avg_loss_profit_percentage"] = 0
-    return record
 
 
 def _update_strategy():
@@ -78,13 +47,6 @@ def _update_strategy():
     new_wallet, new_record = _compute_strategy(wallet, indicators, quotations)
     _save_wallet(USER_ID, new_wallet)
     _save_record(USER_ID, new_record)
-
-
-def _get_wallet(user_id):
-    fields = {"_id": 0, "createdAt": 0}
-    filter = {"userId": user_id}
-    docs = database.find(collection="wallets", filter=filter, projection=fields)
-    return docs[0]
 
 
 def _get_quotations():
@@ -118,6 +80,13 @@ def _compute_strategy(wallet, indicators, data):
     return wallet, record
 
 
+def _get_wallet(user_id):
+    fields = {"_id": 0, "createdAt": 0}
+    filter_ = {"userId": user_id}
+    docs = database.find(collection="wallets", filter=filter_, projection=fields)
+    return docs[0]
+
+
 def _save_wallet(user_id, wallet):
     wallet = wallet.copy()
 
@@ -127,7 +96,6 @@ def _save_wallet(user_id, wallet):
 
     n_deleted = database.delete({"userId": {"$eq": user_id}}, "wallets")
     print(f"  > {n_deleted} wallet deleted")
-
     n_inserted = database.insert_many([wallet], "wallets")
     print(f"  > {n_inserted} wallet inserted")
 
@@ -141,6 +109,5 @@ def _save_record(user_id, record):
     filter = {"userId": {"$eq": user_id}, "occurredAt": {"$eq": get_today_date()}}
     n_deleted = database.delete(filter, "records")
     print(f"  > {n_deleted} record deleted")
-
     n_inserted = database.insert_many([record], "records")
     print(f"  > {n_inserted} record inserted")

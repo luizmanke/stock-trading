@@ -20,7 +20,6 @@ def test_find():
     limit = 10
     docs = database.find(
         "quotations", filter=filter_, projection=fields, sort=sort, limit=limit)
-
     dataframe = pd.DataFrame(docs)
     assert type(docs) == list
     assert ["IBOV"] == list(set(dataframe["ticker"]))
@@ -37,7 +36,6 @@ def test_aggregate():
                     "ticker": {"$last": "$ticker"},
                     "occurredAt": {"$last": "$occurredAt"}}}]
     docs = database.aggregate(pipeline, "quotations")
-
     dataframe = pd.DataFrame(docs)
     assert type(docs) == list
     assert ["IBOV"] == list(set(dataframe["ticker"]))
