@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # System libraries
-import datetime as dt
 from flask_restful import Resource
 
 # Own libraries

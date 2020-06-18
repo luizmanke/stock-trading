@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# TODO: Refactor
+# TODO: Don't run all pipelines when merging
 # TODO: Remove fundamentals from May
 # TODO: Change strategy output form dict to dataframe
 # TODO: Compute indicators for every stock
-# TODO: Make replace_records.py functions reusable
 # TODO: Update backtest data using 2011+ data
 # TODO: Optimize backtest
 # TODO: Operate in downtrend

@@ -11,11 +11,11 @@ from ..common import database
 
 class GetPerformances(Resource):
     def get(self):
-        filter = {"userId": {"$in": [0, 1]}}
+        filter_ = {"userId": {"$in": [0, 1]}}
         fields = {"_id": 0, "occurredAt": 0, "createdAt": 0}
         sort = [("userId", 1)]
         docs = database.find(
-            collection="performances", filter=filter, projection=fields, sort=sort)
+            collection="performances", filter=filter_, projection=fields, sort=sort)
         output = {}
         for doc in docs:
             output.update(self._preprocess(doc))
