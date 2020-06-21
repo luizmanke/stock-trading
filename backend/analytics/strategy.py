@@ -15,7 +15,7 @@ class Strategy:
         pass
 
     def get_indicators(self, fundamentals, quotations):
-        fundamentals, quotations = self._preprocess(fundamentals, quotations)
+        fundamentals, quotations = self._strategy_preprocess(fundamentals, quotations)
         volumes = self._get_volumes(quotations)
         fundamentals = self._filter(fundamentals, volumes)
         rank = self._get_rank(fundamentals)
@@ -25,7 +25,7 @@ class Strategy:
         return indicators
 
     @staticmethod
-    def _preprocess(fundamentals, quotations):
+    def _strategy_preprocess(fundamentals, quotations):
         fundamentals = pd.DataFrame(fundamentals)
         fundamentals = fundamentals.set_index("ticker")
         quotations = pd.DataFrame(quotations)

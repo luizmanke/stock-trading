@@ -14,7 +14,7 @@ class Dealer:
 
     def compute_deals(self, wallet, data, indicators, index):
         self.deals_ = []
-        indicators = self._preprocess_indicators(indicators)
+        indicators = self._dealer_preprocess(indicators)
         self._create_sell_deals(wallet, indicators, index)
         spots_left = self._compute_spots_left_in_wallet(wallet)
         if spots_left and indicators.loc["IBOV", "trend"] != -1:
@@ -23,7 +23,7 @@ class Dealer:
         return self.deals_
 
     @staticmethod
-    def _preprocess_indicators(indicators):
+    def _dealer_preprocess(indicators):
         indicators = pd.DataFrame(indicators)
         indicators = indicators.set_index("ticker")
         return indicators
