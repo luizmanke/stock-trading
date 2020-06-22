@@ -142,7 +142,6 @@ def _save_wallet(user_id, wallet):
 
 
 def _save_records(user_id, records):
-    print(records)
 
     created_at = dt.datetime.utcnow()
     for record in records:
