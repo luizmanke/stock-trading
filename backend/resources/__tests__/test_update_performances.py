@@ -13,7 +13,7 @@ from .. import update_performances
 load_dotenv()
 
 
-def test_update_indicators():
+def test_update_performances():
     initial_time = dt.datetime.utcnow()
     update_performances.run()
     final_time = dt.datetime.utcnow()

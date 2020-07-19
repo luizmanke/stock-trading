@@ -33,14 +33,15 @@ def _create_fundamentals():
 
 def _create_quotations():
     N_SAMPLES = 300
-    market_quotations = [{"ticker": "IBOV", "volume": volume, "close": close}
-                         for volume in np.random.uniform(500000, size=N_SAMPLES)
-                         for close in np.linspace(0, 100, num=N_SAMPLES)]
-    quotations_1 = [{"ticker": "A", "volume": volume, "close": close}
-                    for volume in np.random.uniform(500000, size=N_SAMPLES)
-                    for close in np.linspace(0, 100, num=N_SAMPLES)]
-    quotations_2 = [{"ticker": "B", "volume": volume, "close": close}
-                    for volume in np.random.uniform(500000, size=N_SAMPLES)
-                    for close in np.linspace(0, 100, num=N_SAMPLES)]
-    quotations = market_quotations + quotations_1 + quotations_2
+    volumes = np.random.uniform(500000, size=N_SAMPLES)
+    closes = np.linspace(0, 100, num=N_SAMPLES)
+    quotations = []
+    for ticker in ["IBOV", "A", "B"]:
+        for i in range(N_SAMPLES):
+            new_quotation = {
+                "ticker": ticker,
+                "volume": volumes[i],
+                "close": closes[i],
+            }
+            quotations.append(new_quotation)
     return quotations

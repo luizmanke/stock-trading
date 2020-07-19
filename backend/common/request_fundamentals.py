@@ -15,7 +15,8 @@ def run():
 
 def _request_fundamentals():
     TICKERS_URL = "http://fundamentus.com.br/resultado.php"
-    response = requests.post(url=TICKERS_URL)
+    HEADERS = {"User-Agent": "Mozilla/5.0"}
+    response = requests.get(url=TICKERS_URL, headers=HEADERS)
     fundamentals = pd.read_html(response.text)[0]
     return fundamentals
 

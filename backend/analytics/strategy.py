@@ -15,9 +15,9 @@ class Strategy:
         pass
 
     def get_indicators(self, fundamentals, quotations):
-        fundamentals, quotations = self._preprocess(fundamentals, quotations)
+        fundamentals, quotations = self._strategy_preprocess(fundamentals, quotations)
         volumes = self._get_volumes(quotations)
-        fundamentals = self._filter(fundamentals, volumes)
+        self._update_fundamentals(fundamentals, volumes)
         rank = self._get_rank(fundamentals)
         trends = self._get_trends(rank.index, quotations)
         market_indicator = self._get_market_indicator(quotations)
@@ -25,7 +25,7 @@ class Strategy:
         return indicators
 
     @staticmethod
-    def _preprocess(fundamentals, quotations):
+    def _strategy_preprocess(fundamentals, quotations):
         fundamentals = pd.DataFrame(fundamentals)
         fundamentals = fundamentals.set_index("ticker")
         quotations = pd.DataFrame(quotations)
@@ -36,14 +36,6 @@ class Strategy:
         volumes = quotations.groupby("ticker")["volume"].rolling(window=40).mean()
         return volumes
 
-    def _filter(self, fundamentals, volumes):
-        fundamentals = fundamentals[fundamentals["cagr"] > 0.05]
-        fundamentals = fundamentals[fundamentals[DESCENDING_KEY] > 0]
-        fundamentals = fundamentals[fundamentals[ASCENDING_KEY] > 0]
-        fundamentals = self._update_fundamentals(fundamentals, volumes)
-        fundamentals = fundamentals[fundamentals["volume"] > 100000]
-        return fundamentals
-
     @staticmethod
     def _update_fundamentals(fundamentals, volumes):
         for ticker in set(fundamentals.index):
@@ -53,23 +45,35 @@ class Strategy:
             fundamentals.loc[ticker, "volume"] = volume
         return fundamentals
 
-    @staticmethod
-    def _get_rank(fundamentals):
+    def _get_rank(self, fundamentals):
         new_descending_key = f"{DESCENDING_KEY}_rank"
         new_ascending_key = f"{ASCENDING_KEY}_rank"
         rank_list = range(fundamentals.shape[0])
 
+        # Compute rates
         fundamentals = fundamentals.sort_values(DESCENDING_KEY, ascending=False)
         fundamentals[new_descending_key] = rank_list
         fundamentals = fundamentals.sort_values(ASCENDING_KEY)
         fundamentals[new_ascending_key] = rank_list
-
         fundamentals["rate"] = \
             fundamentals[new_descending_key] + fundamentals[new_ascending_key]
+
+        # Compute ranks
+        self._filter(fundamentals)
         fundamentals = fundamentals.sort_values("rate")
         fundamentals["rank"] = rank_list
 
         return fundamentals["rank"].to_frame()
+
+    @staticmethod
+    def _filter(fundamentals):
+        maximum_rate = max(fundamentals["rate"])
+        fundamentals["rate"] = fundamentals["rate"].where(
+            (fundamentals["cagr"] > 0.05) &
+            (fundamentals[DESCENDING_KEY] > 0) &
+            (fundamentals[ASCENDING_KEY] > 0) &
+            (fundamentals["volume"] > 100000),
+            fundamentals["rate"] + maximum_rate + 1)
 
     @staticmethod
     def _get_trends(tickers, quotations):
@@ -77,11 +81,12 @@ class Strategy:
         trends = pd.Series(name="trend")
         for ticker in tickers:
             ticker_close = quotations["close"][quotations["ticker"] == ticker]
-            mean = ticker_close.ewm(span=WINDOW, min_periods=WINDOW).mean()
-            difference = mean - mean.shift(1)
-            new_trend = difference.where(difference >= 0, -1)
-            new_trend = new_trend.where(difference < 0, 1)
-            trends[ticker] = new_trend.iloc[-1]
+            if not ticker_close.empty:
+                mean = ticker_close.ewm(span=WINDOW, min_periods=WINDOW).mean()
+                difference = mean - mean.shift(1)
+                new_trend = difference.where(difference >= 0, -1)
+                new_trend = new_trend.where(difference < 0, 1)
+                trends[ticker] = new_trend.iloc[-1]
         return trends
 
     @staticmethod

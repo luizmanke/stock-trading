@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# TODO: Don't run all pipelines when merging
-# TODO: Remove fundamentals from May
-# TODO: Change strategy output form dict to dataframe
-# TODO: Compute indicators for every stock
 # TODO: Update backtest data using 2011+ data
+# TODO: Don't buy same company
 # TODO: Optimize backtest
 # TODO: Operate in downtrend
-# TODO: Add DARF/transactional charges
 
 # System libraries
 from flask import Flask
