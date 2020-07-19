@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # TODO: Update backtest data using 2011+ data
+# TODO: Don't buy same company
 # TODO: Optimize backtest
 # TODO: Operate in downtrend
 
