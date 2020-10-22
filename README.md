@@ -20,7 +20,7 @@ Some of the evaluation indicators are as follows:
 * Profit factor
 * Recuperation factor
 
-<img src="https://github.com/luizmanke/cream-stock-market/blob/master/backend/analytics/backtest/reference/2013-09-01_2016-09-01.png" width="500">  <img src="https://github.com/luizmanke/cream-stock-market/blob/master/backend/analytics/backtest/reference/2017-01-01_2019-12-30.png" width="500">
+<img src="https://github.com/luizmanke/cream-stock-market/blob/master/backend/analytics/backtest/reference/2012-01-01_2015-01-01.png" width="500">  <img src="https://github.com/luizmanke/cream-stock-market/blob/master/backend/analytics/backtest/reference/2014-09-01_2019-09-01.png" width="500">
 
 ## Data
 
